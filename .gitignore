@@ -1,0 +1,14 @@
+*~
+*.user*
+*.o
+*.wixpdb
+*.wixobj
+*.msi
+*.log
+build/*
+gmon.out
+
+.metadata/*
+*/Makefile
+*.Debug
+*.Release
