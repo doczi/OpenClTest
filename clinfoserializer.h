@@ -2,7 +2,6 @@
 #define CLINFOSERIALIZER_H
 
 #include "clinfo.h"
-
 #include <string>
 
 

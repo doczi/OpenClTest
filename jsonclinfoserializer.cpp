@@ -10,15 +10,15 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
 {
     rapidjson::Document document;
     document.SetArray();
+    rapidjson::MemoryPoolAllocator<>& allocator = document.GetAllocator();
 
     for (const ClPlatformInfo& platformInfo: info.platforms) {
         rapidjson::Value platform;
         platform.SetObject();
         for (const auto& field: platformInfo.fields) {
-            platform.AddMember(
-                    field.first.c_str(),
-                    field.second.c_str(),
-                    document.GetAllocator());
+            rapidjson::Value jsonValue;
+            setJsonValue(jsonValue, allocator, field.second);
+            platform.AddMember(field.first.c_str(), jsonValue, allocator);
         }
 
         rapidjson::Value devices;
@@ -27,10 +27,9 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
             rapidjson::Value device;
             device.SetObject();
             for (const auto& field: deviceInfo.fields) {
-                device.AddMember(
-                        field.first.c_str(),
-                        field.second.c_str(),
-                        document.GetAllocator());
+                rapidjson::Value jsonValue;
+                setJsonValue(jsonValue, allocator, field.second);
+                device.AddMember(field.first.c_str(), jsonValue, allocator);
             }
             devices.PushBack(device, document.GetAllocator());
         }
@@ -42,4 +41,30 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
     rapidjson::PrettyWriter<rapidjson::StringBuffer> writer(stringBuffer);
     document.Accept(writer);
     return stringBuffer.GetString();
+}
+
+
+
+void JsonClInfoSerializer::setJsonValue(
+        rapidjson::Value& jsonValue,
+        rapidjson::MemoryPoolAllocator<>& allocator,
+        const ClValue& clValue) const
+{
+    switch (clValue.type) {
+    case ClValue::Type::BOOLEAN:
+        jsonValue.SetBool(clValue.number);
+        break;
+    case ClValue::Type::NUMBER:
+        jsonValue.SetUint64(clValue.number);
+        break;
+    case ClValue::Type::SIZE_ARRAY:
+        jsonValue.SetArray();
+        for (size_t size: clValue.sizeArray) {
+            jsonValue.PushBack(size, allocator);
+        }
+        break;
+    default:
+        jsonValue.SetString(clValue.toString().c_str());
+        break;
+    }
 }

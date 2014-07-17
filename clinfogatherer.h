@@ -3,7 +3,6 @@
 
 #include "clinfo.h"
 #include "openclwrapper.h"
-
 #include <utility>
 
 
@@ -19,10 +18,6 @@ public:
 
     ClInfo gatherInfo();
 
-    std::pair<std::string, std::string> getPlatformField(
-            cl_platform_id platformId,
-            const std::string fieldName,
-            cl_platform_info fieldId) const;
     template<class T>
     std::pair<std::string, std::string> getDeviceField(
             cl_device_id deviceId,

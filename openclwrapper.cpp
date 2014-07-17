@@ -100,7 +100,30 @@ std::string OpenClWrapper::getDeviceInfo<std::string>(
     }
 
     std::string result(resultSize, '\0');
-    error = clGetDeviceInfo(deviceId, parameterName, result.size(), &result[0],
+    error = clGetDeviceInfo(deviceId, parameterName, resultSize, &result[0],
+            nullptr);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get device info", error);
+    }
+    return result;
+}
+
+
+
+template<>
+std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
+        cl_device_id deviceId,
+        cl_device_info parameterName)
+{
+    size_t resultSize;
+    cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
+            &resultSize);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get device info", error);
+    }
+
+    std::vector<size_t> result(resultSize / sizeof(size_t));
+    error = clGetDeviceInfo(deviceId, parameterName, resultSize, result.data(),
             nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
@@ -122,7 +145,9 @@ void* OpenClWrapper::openLibrary(const std::string& path)
 
 
 template<class T>
-void OpenClWrapper::bindFunction(T& functionPointer, const std::string& name)
+void OpenClWrapper::bindFunction(
+        T& functionPointer,
+        const std::string& name)
 {
     void* pointer = dlsym(libraryHandle, name.c_str());
     if (pointer == nullptr) {

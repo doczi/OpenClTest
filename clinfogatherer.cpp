@@ -1,7 +1,6 @@
 #include "clinfogatherer.h"
 
 #include "openclwrapper.h"
-
 #include <sstream>
 
 
@@ -12,8 +11,7 @@ ClInfoGatherer::ClInfoGatherer(OpenClWrapper& openClWrapper):
 
 
 
-#define ADD_PLATFORM_FIELD(fieldId) platformInfo.fields.insert( \
-        getPlatformField(platform, #fieldId, fieldId))
+#define ADD_PLATFORM_FIELD(parameterName)
 #define ADD_DEVICE_FIELD(type, fieldId) deviceInfo.fields.insert( \
         getDeviceField<type>(device, #fieldId, fieldId))
 
@@ -25,11 +23,17 @@ ClInfo ClInfoGatherer::gatherInfo()
     std::vector<cl_platform_id> platforms = openClWrapper->getPlatformIds();
     for (cl_platform_id platform: platforms) {
         ClPlatformInfo platformInfo;
-        ADD_PLATFORM_FIELD(CL_PLATFORM_PROFILE);
-        ADD_PLATFORM_FIELD(CL_PLATFORM_VERSION);
-        ADD_PLATFORM_FIELD(CL_PLATFORM_NAME);
-        ADD_PLATFORM_FIELD(CL_PLATFORM_VENDOR);
-        ADD_PLATFORM_FIELD(CL_PLATFORM_EXTENSIONS);
+        platformInfo.fields.emplace("profile",
+                openClWrapper->getPlatformInfo(platform, CL_PLATFORM_PROFILE));
+        platformInfo.fields.emplace("version",
+                openClWrapper->getPlatformInfo(platform, CL_PLATFORM_VERSION));
+        platformInfo.fields.emplace("name",
+                openClWrapper->getPlatformInfo(platform, CL_PLATFORM_NAME));
+        platformInfo.fields.emplace("vendor",
+                openClWrapper->getPlatformInfo(platform, CL_PLATFORM_VENDOR));
+        platformInfo.fields.emplace("extensions",
+                openClWrapper->getPlatformInfo(platform,
+                        CL_PLATFORM_EXTENSIONS));
 
         std::vector<cl_device_id> devices =
                 openClWrapper->getDeviceIds(platform);
@@ -38,7 +42,7 @@ ClInfo ClInfoGatherer::gatherInfo()
             ADD_DEVICE_FIELD(cl_uint, CL_DEVICE_ADDRESS_BITS);
             ADD_DEVICE_FIELD(cl_bool, CL_DEVICE_AVAILABLE);
             ADD_DEVICE_FIELD(cl_bool, CL_DEVICE_COMPILER_AVAILABLE);
-            //ADD_DEVICE_FIELD(cl_device_fp_config, CL_DEVICE_DOUBLE_FP_CONFIG);
+            ADD_DEVICE_FIELD(cl_device_fp_config, CL_DEVICE_DOUBLE_FP_CONFIG);
             ADD_DEVICE_FIELD(cl_bool, CL_DEVICE_ENDIAN_LITTLE);
             ADD_DEVICE_FIELD(cl_bool, CL_DEVICE_ERROR_CORRECTION_SUPPORT);
             //ADD_DEVICE_FIELD(cl_device_exec_capabilities, CL_DEVICE_EXECUTION_CAPABILITIES);
@@ -53,8 +57,7 @@ ClInfo ClInfoGatherer::gatherInfo()
 
             platformInfo.devices.emplace_back(std::move(deviceInfo));
         }
-
-        result.platforms.emplace_back(std::move(platformInfo));
+         result.platforms.emplace_back(std::move(platformInfo));
     }
 
     return result;
@@ -62,17 +65,6 @@ ClInfo ClInfoGatherer::gatherInfo()
 
 #undef GET_PLATFORM_FIELD
 #undef GET_DEVICE_FIELD
-
-
-
-std::pair<std::string, std::string> ClInfoGatherer::getPlatformField(
-        cl_platform_id platformId,
-        const std::string fieldName,
-        cl_platform_info fieldId) const
-{
-    std::string value = openClWrapper->getPlatformInfo(platformId, fieldId);
-    return std::make_pair(fieldName, value);
-}
 
 
 

@@ -2,7 +2,6 @@
 #define OPENCLWRAPPER_H
 
 #include <CL/opencl.h>
-
 #include <sstream>
 #include <stdexcept>
 #include <string>

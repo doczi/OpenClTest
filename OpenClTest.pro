@@ -7,7 +7,8 @@ SOURCES += \
     main.cpp \
     clinfogatherer.cpp \
     jsonclinfoserializer.cpp \
-    openclwrapper.cpp
+    openclwrapper.cpp \
+    clinfo.cpp
 
 HEADERS += \
     clinfogatherer.h \

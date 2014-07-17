@@ -1,7 +1,6 @@
 #include "clinfogatherer.h"
 #include "jsonclinfoserializer.h"
 #include "openclwrapper.h"
-
 #include <cstdlib>
 #include <exception>
 #include <iostream>
