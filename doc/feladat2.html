@@ -1,0 +1,66 @@
+<html>
+<head><meta charset="UTF-8"></head>
+<body>
+<h1>Feladat:</h1>
+
+<p>Készíts alkalmazást ami a rendszer OpenCL API-ról gyűjt információt, amit JSON formában megjelenít a konzolon. Elvárások az alkalmazással kapcsolatban:</p>
+
+<ul>
+<li>Az alkalmazás egy library-t használjon a szükséges információ összegyűjtésére.</li>
+<li>A library biztosítson osztályokat, a lekért információ tárolására.</li>
+<li>Az adattároló osztályok legyenek függetlenek a konkrét szerializációtól (Lehessen később lecserélni a szerializációt pl JSON-ről XML-re).</li>
+<li>Az OpenCL kontextet a library hozza létre. Az összes elérhető device-ról, kérdezzen le minél több információt.</li>
+<li>Az OpenCL library-t dinamikusan töltse be (LoadLibrary, dlopen), NE linkeljen hozzá. Az API szükséges függvényeit futásidőben kérje le.
+<ul>
+<li>A betöltésre külső könyvtár használható, de nem követelmény. pl: https://code.google.com/p/clew/</li>
+</ul></li>
+<li>Az alkalmazásnak lehessen megadni az OpenCL library elérési útját.</li>
+<li>Az alkalmazás próbáljon meg lefordítani egy egyszerű kernelt. A fordított kernel kódja, és a fordítás státuszát tartalmazza a kimenet.</li>
+</ul>
+
+<h2>Platform:</h2>
+
+<p>Tetszőlegesen választható az alábbiak közül: Windows, Linux, MacOS</p>
+
+<h1>A kóddal kapcsolatos elvárások:</h1>
+
+<ul>
+<li>Az implementáció készüljön C++ nyelven (c++11 használható)</li>
+<li>Legyen átgondolt, objektum orientált, újrafelhasználható, jól struktúrált</li>
+<li>A kód főbb strukturális elemei legyenek dokumentálva</li>
+<li>A kód legyen tesztelve. A lehetséges hibaesetekre ki kell térni, legalább kódban megjegyzés szinten.</li>
+</ul>
+
+<p>A kódhoz legyen mellékelve leírás, ami tartalmazza hogyan kell projectet lefordítani, elindítani, milyen függőségei vannak, milyen platformon lett tesztelve. A csomag tartalmazzon egy projectfájlt, amivel a program fordítható, és kipróbálható.</p>
+
+<h1>A feladat beküldése:</h1>
+
+<p>Ha megpróbálod a feladatot akkor írd meg, hogy körülbelül mikorra végzel vele.</p>
+
+<p>Ha elkeszült a feladat, a forráskódot, leírást, és projectfájlokat zip-pel tömörítve küldd el a következő címre:
+<code>app@kishonti.net</code> 
+A csomag elnevezése a következő legyen: <em>vezetéknév.keresztnév-verzió.zip</em>, ahol a <em>verzió</em> azonosítja hányadik iteráció. Pl javításnál.</p>
+
+<p>Ha a csomag nagyobb mint 5MB, akkor előtte írj egy emailt. </p>
+
+<h2>Bónusz:</h2>
+
+<ul>
+<li>A feladat megoldása során használj valamilyen verziókövető rendszert. Pl: git. Ebben az esetben a zip-pelt csomag helyett elég a publikusan elérhető repository URL-je is (Pl: http://github.com)</li>
+<li>Az alkalmazás legyen portolható további operációs rendszerekre.</li>
+<li>Használd a CMake build rendszert.</li>
+</ul>
+
+<h2>Linkek:</h2>
+
+<ul>
+<li><a href="http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/">http://www.khronos.org/registry/cl/sdk/1.1/docs/man/xhtml/</a></li>
+<li><a href="https://developer.apple.com/library/mac/samplecode/OpenCL_Hello_World_Example/Introduction/Intro.html">https://developer.apple.com/library/mac/samplecode/OpenCL<em>Hello</em>World_Example/Introduction/Intro.html</a></li>
+<li><a href="https://code.google.com/p/clew/">https://code.google.com/p/clew/</a></li>
+<li><a href="http://ventspace.wordpress.com/2012/10/08/c-json-serialization/">http://ventspace.wordpress.com/2012/10/08/c-json-serialization/</a></li>
+<li><a href="https://github.com/open-source-parsers/jsoncpp">https://github.com/open-source-parsers/jsoncpp</a></li>
+</ul>
+
+<p>2014.07.15.</p>
+</body>
+</html>
