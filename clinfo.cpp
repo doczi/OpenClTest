@@ -5,7 +5,21 @@
 
 
 
-ClValue::ClValue(Type type, uint64_t number):
+ClValue::ClValue(bool boolean):
+    type(Type::BOOLEAN),
+    number(boolean)
+{}
+
+
+
+ClValue::ClValue(uint32_t number):
+    type(Type::NUMBER),
+    number(number)
+{}
+
+
+
+ClValue::ClValue(uint64_t number, Type type):
     type(type),
     number(number)
 {}

@@ -17,6 +17,8 @@ public:
     ClInfoGatherer(OpenClWrapper& openClWrapper);
 
     ClInfo gatherInfo();
+    ClPlatformInfo gatherPlatformInfo(cl_platform_id platformId);
+    ClDeviceInfo gatherDeviceInfo(cl_device_id);
 
     template<class T>
     std::pair<std::string, std::string> getDeviceField(

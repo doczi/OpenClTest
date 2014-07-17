@@ -133,6 +133,22 @@ std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
 
 
 
+template<>
+bool OpenClWrapper::getDeviceInfo<bool>(
+        cl_device_id deviceId,
+        cl_device_info parameterName)
+{
+    cl_bool result;
+    cl_int error = clGetDeviceInfo(deviceId, parameterName, sizeof(result),
+            &result, nullptr);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get device info", error);
+    }
+    return result;
+}
+
+
+
 void* OpenClWrapper::openLibrary(const std::string& path)
 {
     void* handle = dlopen(path.c_str(), RTLD_LAZY);

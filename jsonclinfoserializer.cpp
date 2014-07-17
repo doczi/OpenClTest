@@ -64,7 +64,7 @@ void JsonClInfoSerializer::setJsonValue(
         }
         break;
     default:
-        jsonValue.SetString(clValue.toString().c_str());
+        jsonValue.SetString(clValue.toString().c_str(), allocator);
         break;
     }
 }

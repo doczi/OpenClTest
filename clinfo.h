@@ -29,7 +29,9 @@ struct ClValue
     std::string text;
     std::vector<size_t> sizeArray;
 
-    ClValue(Type type, uint64_t number);
+    ClValue(bool boolean);
+    ClValue(uint32_t number);
+    ClValue(uint64_t number, Type type = Type::NUMBER);
     ClValue(const std::string& text);
     ClValue(const std::vector<size_t> sizeArray);
     std::string toString() const;
