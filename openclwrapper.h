@@ -32,7 +32,6 @@ private:
 class OpenClWrapper
 {
 public:
-    static const size_t MAX_STRING_LENGTH = 1024;
     OpenClWrapper(const std::string& openClPath);
     ~OpenClWrapper();
     std::vector<cl_platform_id> getPlatformIds() const;

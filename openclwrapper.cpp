@@ -48,14 +48,19 @@ std::string OpenClWrapper::getPlatformInfo(
         cl_platform_id platformId,
         cl_platform_info parameterName) const
 {
-    std::string result(MAX_STRING_LENGTH, '\0');
     size_t resultSize;
-    cl_int error = clGetPlatformInfo(platformId, parameterName, result.size(),
-            &result[0], &resultSize);
+    cl_int error = clGetPlatformInfo(platformId, parameterName, 0,
+            nullptr, &resultSize);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform info", error);
     }
-    result.resize(resultSize);
+
+    std::string result(resultSize, '\0');
+    error = clGetPlatformInfo(platformId, parameterName, resultSize, &result[0],
+            nullptr);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get platform info", error);
+    }
     return result;
 }
 
@@ -82,12 +87,34 @@ std::vector<cl_device_id> OpenClWrapper::getDeviceIds(
 
 
 
+template<>
+std::string OpenClWrapper::getDeviceInfo<std::string>(
+        cl_device_id deviceId,
+        cl_device_info parameterName)
+{
+    size_t resultSize;
+    cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
+            &resultSize);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get device info", error);
+    }
+
+    std::string result(resultSize, '\0');
+    error = clGetDeviceInfo(deviceId, parameterName, result.size(), &result[0],
+            nullptr);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot get device info", error);
+    }
+    return result;
+}
+
+
+
 void* OpenClWrapper::openLibrary(const std::string& path)
 {
     void* handle = dlopen(path.c_str(), RTLD_LAZY);
     if (handle == nullptr) {
-        throw OpenClException("Cannot open library: " + path +
-                " (" + dlerror() + ")");
+        throw OpenClException(dlerror());
     }
     return handle;
 }
@@ -99,26 +126,7 @@ void OpenClWrapper::bindFunction(T& functionPointer, const std::string& name)
 {
     void* pointer = dlsym(libraryHandle, name.c_str());
     if (pointer == nullptr) {
-        throw OpenClException("Cannot bind function: " + name +
-                " (" + dlerror() + ")");
+        throw OpenClException(dlerror());
     }
     functionPointer = reinterpret_cast<T>(pointer);
-}
-
-
-
-template<>
-std::string OpenClWrapper::getDeviceInfo<std::string>(
-        cl_device_id deviceId,
-        cl_device_info parameterName)
-{
-    std::string result(MAX_STRING_LENGTH, '\0');
-    size_t resultSize;
-    cl_int error = clGetDeviceInfo(deviceId, parameterName, result.size(),
-            &result[0], &resultSize);
-    if (error != CL_SUCCESS) {
-        throw OpenClException("Cannot get device info", error);
-    }
-    result.resize(resultSize);
-    return result;
 }
