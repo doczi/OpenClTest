@@ -5,13 +5,17 @@ CONFIG -= app_bundle qt
 
 SOURCES += \
     main.cpp \
-    clinfogatherer.cpp
+    clinfogatherer.cpp \
+    jsonclinfoserializer.cpp
 
 HEADERS += \
     clinfogatherer.h \
-    clinfo.h
+    clinfo.h \
+    clinfoserializer.h \
+    jsonclinfoserializer.h
 
 INCLUDEPATH += \
+    include \
     /opt/AMDAPP/include
 
 LIBS += \
