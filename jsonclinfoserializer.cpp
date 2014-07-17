@@ -14,10 +14,10 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
     for (const ClPlatformInfo& platformInfo: info.platforms) {
         rapidjson::Value platform;
         platform.SetObject();
-        for (const ClInfoField& infoField: platformInfo.fields) {
+        for (const auto& field: platformInfo.fields) {
             platform.AddMember(
-                    infoField.name.c_str(),
-                    infoField.value.c_str(),
+                    field.first.c_str(),
+                    field.second.c_str(),
                     document.GetAllocator());
         }
 
@@ -26,10 +26,10 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
         for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
             rapidjson::Value device;
             device.SetObject();
-            for (const ClInfoField& infoField: deviceInfo.fields) {
+            for (const auto& field: deviceInfo.fields) {
                 device.AddMember(
-                        infoField.name.c_str(),
-                        infoField.value.c_str(),
+                        field.first.c_str(),
+                        field.second.c_str(),
                         document.GetAllocator());
             }
             devices.PushBack(device, document.GetAllocator());

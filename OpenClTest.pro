@@ -6,20 +6,21 @@ CONFIG -= app_bundle qt
 SOURCES += \
     main.cpp \
     clinfogatherer.cpp \
-    jsonclinfoserializer.cpp
+    jsonclinfoserializer.cpp \
+    openclwrapper.cpp
 
 HEADERS += \
     clinfogatherer.h \
     clinfo.h \
     clinfoserializer.h \
-    jsonclinfoserializer.h
+    jsonclinfoserializer.h \
+    openclwrapper.h
 
 INCLUDEPATH += \
     include \
     /opt/AMDAPP/include
 
 LIBS += \
-    -L/opt/AMDAPP/lib/x86_64 \
-    -lOpenCL
+    -ldl
 
 QMAKE_CXXFLAGS += -std=c++11

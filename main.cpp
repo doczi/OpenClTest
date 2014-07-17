@@ -1,5 +1,6 @@
 #include "clinfogatherer.h"
 #include "jsonclinfoserializer.h"
+#include "openclwrapper.h"
 
 #include <cstdlib>
 #include <exception>
@@ -10,7 +11,8 @@
 int main()
 {
     try {
-        ClInfoGatherer infoGatherer;
+        OpenClWrapper openClWrapper("/opt/AMDAPP/lib/x86_64/libOpenCL.so");
+        ClInfoGatherer infoGatherer(openClWrapper);
         ClInfo info = infoGatherer.gatherInfo();
         JsonClInfoSerializer infoSerializer;
         std::cout << infoSerializer.serialize(info) << std::endl;

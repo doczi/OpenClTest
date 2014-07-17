@@ -2,24 +2,19 @@
 #define CLINFO_H
 
 #include <string>
+#include <map>
 #include <vector>
 
 
 
-struct ClInfoField
-{
-    std::string name;
-    std::string value;
-};
-
 struct ClDeviceInfo
 {
-    std::vector<ClInfoField> fields;
+    std::map<std::string, std::string> fields;
 };
 
 struct ClPlatformInfo
 {
-    std::vector<ClInfoField> fields;
+    std::map<std::string, std::string> fields;
     std::vector<ClDeviceInfo> devices;
 };
 

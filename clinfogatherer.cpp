@@ -1,18 +1,20 @@
 #include "clinfogatherer.h"
 
+#include "openclwrapper.h"
+
 #include <sstream>
 
 
 
-ClInfoGatherer::ClInfoGatherer()
-{
-}
+ClInfoGatherer::ClInfoGatherer(OpenClWrapper& openClWrapper):
+    openClWrapper(&openClWrapper)
+{}
 
 
 
-#define ADD_PLATFORM_FIELD(fieldId) platformInfo.fields.push_back( \
+#define ADD_PLATFORM_FIELD(fieldId) platformInfo.fields.insert( \
         getPlatformField(platform, #fieldId, fieldId))
-#define ADD_DEVICE_FIELD(type, fieldId) deviceInfo.fields.push_back( \
+#define ADD_DEVICE_FIELD(type, fieldId) deviceInfo.fields.insert( \
         getDeviceField<type>(device, #fieldId, fieldId))
 
 ClInfo ClInfoGatherer::gatherInfo()
@@ -20,9 +22,8 @@ ClInfo ClInfoGatherer::gatherInfo()
 
     ClInfo result;
 
-    std::vector<cl::Platform> platforms;
-    cl::Platform::get(&platforms);
-    for (const cl::Platform& platform: platforms) {
+    std::vector<cl_platform_id> platforms = openClWrapper->getPlatformIds();
+    for (cl_platform_id platform: platforms) {
         ClPlatformInfo platformInfo;
         ADD_PLATFORM_FIELD(CL_PLATFORM_PROFILE);
         ADD_PLATFORM_FIELD(CL_PLATFORM_VERSION);
@@ -30,9 +31,9 @@ ClInfo ClInfoGatherer::gatherInfo()
         ADD_PLATFORM_FIELD(CL_PLATFORM_VENDOR);
         ADD_PLATFORM_FIELD(CL_PLATFORM_EXTENSIONS);
 
-        std::vector<cl::Device> devices;
-        platform.getDevices(CL_DEVICE_TYPE_ALL, &devices);
-        for (const cl::Device& device: devices) {
+        std::vector<cl_device_id> devices =
+                openClWrapper->getDeviceIds(platform);
+        for (cl_device_id device: devices) {
             ClDeviceInfo deviceInfo;
             ADD_DEVICE_FIELD(cl_uint, CL_DEVICE_ADDRESS_BITS);
             ADD_DEVICE_FIELD(cl_bool, CL_DEVICE_AVAILABLE);
@@ -64,32 +65,24 @@ ClInfo ClInfoGatherer::gatherInfo()
 
 
 
-ClInfoField ClInfoGatherer::getPlatformField(
-        const cl::Platform& platform,
+std::pair<std::string, std::string> ClInfoGatherer::getPlatformField(
+        cl_platform_id platformId,
         const std::string fieldName,
         cl_platform_info fieldId) const
 {
-    ClInfoField result;
-    result.name = fieldName;
-    platform.getInfo(fieldId, &result.value);
-    return result;
+    std::string value = openClWrapper->getPlatformInfo(platformId, fieldId);
+    return std::make_pair(fieldName, value);
 }
 
 
 
 template<class T>
-ClInfoField ClInfoGatherer::getDeviceField(
-        const cl::Device& device,
+std::pair<std::string, std::string> ClInfoGatherer::getDeviceField(
+        cl_device_id deviceId,
         const std::string fieldName,
         cl_device_info fieldId) const
 {
-    T value;
-    device.getInfo(fieldId, &value);
     std::ostringstream oss;
-    oss << value;
-
-    ClInfoField result;
-    result.name = fieldName;
-    result.value = oss.str();
-    return result;
+    oss << openClWrapper->getDeviceInfo<T>(deviceId, fieldId);
+    return std::make_pair(fieldName, oss.str());
 }

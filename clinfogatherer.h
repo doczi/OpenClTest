@@ -2,29 +2,34 @@
 #define CLINFOGATHERER_H
 
 #include "clinfo.h"
+#include "openclwrapper.h"
 
-#define __CL_ENABLE_EXCEPTIONS
-#include <CL/cl.hpp>
+#include <utility>
+
+
+
+class OpenClWrapper;
 
 
 
 class ClInfoGatherer
 {
 public:
-    ClInfoGatherer();
-    void start();
-    ClInfo gatherInfo();
-    void finish();
+    ClInfoGatherer(OpenClWrapper& openClWrapper);
 
-    ClInfoField getPlatformField(
-            const cl::Platform& platform,
+    ClInfo gatherInfo();
+
+    std::pair<std::string, std::string> getPlatformField(
+            cl_platform_id platformId,
             const std::string fieldName,
             cl_platform_info fieldId) const;
     template<class T>
-    ClInfoField getDeviceField(
-            const cl::Device& device,
+    std::pair<std::string, std::string> getDeviceField(
+            cl_device_id deviceId,
             const std::string fieldName,
             cl_device_info fieldId) const;
+private:
+    OpenClWrapper* openClWrapper;
 };
 
 
