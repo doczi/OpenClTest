@@ -9,7 +9,8 @@ SOURCES += \
     jsonclinfoserializer.cpp \
     openclwrapper.cpp \
     clinfo.cpp \
-    xmlclinfoserializer.cpp
+    xmlclinfoserializer.cpp \
+    openclbinder.cpp
 
 HEADERS += \
     clinfogatherer.h \
@@ -17,7 +18,9 @@ HEADERS += \
     clinfoserializer.h \
     jsonclinfoserializer.h \
     openclwrapper.h \
-    xmlclinfoserializer.h
+    xmlclinfoserializer.h \
+    openclbinder.h \
+    openclexception.h
 
 INCLUDEPATH += \
     include \

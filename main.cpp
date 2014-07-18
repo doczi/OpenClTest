@@ -1,5 +1,6 @@
 #include "clinfogatherer.h"
 #include "jsonclinfoserializer.h"
+#include "openclbinder.h"
 #include "openclwrapper.h"
 #include "xmlclinfoserializer.h"
 #include <cstdlib>
@@ -30,7 +31,8 @@ int main(int argc, char* argv[])
             throw std::runtime_error("Unknown format.");
         }
         ClInfoSerializer& serializer = *(foundSerializer->second);
-        OpenClWrapper openClWrapper(libraryPath);
+        OpenClBinder openClBinder(libraryPath);
+        OpenClWrapper openClWrapper(openClBinder);
         ClInfoGatherer infoGatherer(openClWrapper);
         ClInfo info = infoGatherer.gatherInfo();
         std::cout << serializer.serialize(info) << std::endl;
@@ -41,4 +43,3 @@ int main(int argc, char* argv[])
         return EXIT_FAILURE;
     }
 }
-

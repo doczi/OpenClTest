@@ -1,37 +1,23 @@
 #include "openclwrapper.h"
 
-#include <dlfcn.h>
 
 
-
-OpenClWrapper::OpenClWrapper(const std::string& openClPath)
-{
-    libraryHandle = openLibrary(openClPath);
-
-    #define BIND_FUNCTION_POINTER(function) bindFunction(function, #function);
-    PROCESS_OPEN_CL_FUNCTION_LIST(BIND_FUNCTION_POINTER)
-    #undef BIND_FUNCTION_POINTER
-}
-
-
-
-OpenClWrapper::~OpenClWrapper()
-{
-    dlclose(libraryHandle);
-}
+OpenClWrapper::OpenClWrapper(OpenClBinder& binder):
+    binder(&binder)
+{}
 
 
 
 std::vector<cl_platform_id> OpenClWrapper::getPlatformIds() const
 {
     cl_uint platformCount = 0;
-    cl_int error = clGetPlatformIDs(0, nullptr, &platformCount);
+    cl_int error = binder->clGetPlatformIDs(0, nullptr, &platformCount);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform IDs", error);
     }
 
     std::vector<cl_platform_id> result(platformCount);
-    error = clGetPlatformIDs(platformCount, result.data(), nullptr);
+    error = binder->clGetPlatformIDs(platformCount, result.data(), nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform IDs", error);
     }
@@ -45,15 +31,15 @@ std::string OpenClWrapper::getPlatformInfo(
         cl_platform_info parameterName) const
 {
     size_t resultSize;
-    cl_int error = clGetPlatformInfo(platformId, parameterName, 0,
+    cl_int error = binder->clGetPlatformInfo(platformId, parameterName, 0,
             nullptr, &resultSize);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform info", error);
     }
 
     std::string result(resultSize, '\0');
-    error = clGetPlatformInfo(platformId, parameterName, resultSize, &result[0],
-            nullptr);
+    error = binder->clGetPlatformInfo(platformId, parameterName, resultSize,
+            &result[0], nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform info", error);
     }
@@ -66,14 +52,14 @@ std::vector<cl_device_id> OpenClWrapper::getDeviceIds(
         cl_platform_id platformId) const
 {
     cl_uint deviceCount = 0;
-    cl_int error = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0, nullptr,
-            &deviceCount);
+    cl_int error = binder->clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, 0,
+            nullptr, &deviceCount);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform IDs", error);
     }
 
     std::vector<cl_device_id> result(deviceCount);
-    error = clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, deviceCount,
+    error = binder->clGetDeviceIDs(platformId, CL_DEVICE_TYPE_ALL, deviceCount,
             result.data(), nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get platform IDs", error);
@@ -89,15 +75,15 @@ std::string OpenClWrapper::getDeviceInfo<std::string>(
         cl_device_info parameterName) const
 {
     size_t resultSize;
-    cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
+    cl_int error = binder->clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
             &resultSize);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
     }
 
     std::string result(resultSize, '\0');
-    error = clGetDeviceInfo(deviceId, parameterName, resultSize, &result[0],
-            nullptr);
+    error = binder->clGetDeviceInfo(deviceId, parameterName, resultSize,
+            &result[0], nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
     }
@@ -112,15 +98,15 @@ std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
         cl_device_info parameterName) const
 {
     size_t resultSize;
-    cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
+    cl_int error = binder->clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
             &resultSize);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
     }
 
     std::vector<size_t> result(resultSize / sizeof(size_t));
-    error = clGetDeviceInfo(deviceId, parameterName, resultSize, result.data(),
-            nullptr);
+    error = binder->clGetDeviceInfo(deviceId, parameterName, resultSize,
+            result.data(), nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
     }
@@ -135,8 +121,8 @@ bool OpenClWrapper::getDeviceInfo<bool>(
         cl_device_info parameterName) const
 {
     cl_bool result;
-    cl_int error = clGetDeviceInfo(deviceId, parameterName, sizeof(result),
-            &result, nullptr);
+    cl_int error = binder->clGetDeviceInfo(deviceId, parameterName,
+            sizeof(result), &result, nullptr);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot get device info", error);
     }
@@ -149,7 +135,7 @@ cl_context OpenClWrapper::createContext(
         const std::vector<cl_device_id>& deviceIds) const
 {
     cl_int error;
-    cl_context result = clCreateContext(nullptr, deviceIds.size(),
+    cl_context result = binder->clCreateContext(nullptr, deviceIds.size(),
             deviceIds.data(), nullptr, nullptr, &error);
     if (error != CL_SUCCESS) {
         throw OpenClException("Cannot create context", error);
@@ -161,30 +147,5 @@ cl_context OpenClWrapper::createContext(
 
 void OpenClWrapper::releaseContext(cl_context context) const
 {
-    clReleaseContext(context);
-}
-
-
-
-void* OpenClWrapper::openLibrary(const std::string& path)
-{
-    void* handle = dlopen(path.c_str(), RTLD_LAZY);
-    if (handle == nullptr) {
-        throw OpenClException(dlerror());
-    }
-    return handle;
-}
-
-
-
-template<class T>
-void OpenClWrapper::bindFunction(
-        T& functionPointer,
-        const std::string& name)
-{
-    void* pointer = dlsym(libraryHandle, name.c_str());
-    if (pointer == nullptr) {
-        throw OpenClException(dlerror());
-    }
-    functionPointer = reinterpret_cast<T>(pointer);
+    binder->clReleaseContext(context);
 }
