@@ -9,6 +9,91 @@
 
 
 
+#define PROCESS_OPEN_CL_FUNCTION_LIST(action) \
+    action(clGetPlatformIDs) \
+    action(clGetPlatformInfo) \
+    action(clGetDeviceIDs) \
+    action(clGetDeviceInfo) \
+    action(clCreateSubDevices) \
+    action(clRetainDevice) \
+    action(clReleaseDevice) \
+    action(clCreateContext) \
+    action(clCreateContextFromType) \
+    action(clRetainContext) \
+    action(clReleaseContext) \
+    action(clGetContextInfo) \
+    action(clCreateCommandQueue) \
+    action(clRetainCommandQueue) \
+    action(clReleaseCommandQueue) \
+    action(clGetCommandQueueInfo) \
+    action(clCreateBuffer) \
+    action(clCreateSubBuffer) \
+    action(clCreateImage) \
+    action(clRetainMemObject) \
+    action(clReleaseMemObject) \
+    action(clGetSupportedImageFormats) \
+    action(clGetMemObjectInfo) \
+    action(clGetImageInfo) \
+    action(clSetMemObjectDestructorCallback) \
+    action(clCreateSampler) \
+    action(clRetainSampler) \
+    action(clReleaseSampler) \
+    action(clGetSamplerInfo) \
+    action(clCreateProgramWithSource) \
+    action(clCreateProgramWithBinary) \
+    action(clCreateProgramWithBuiltInKernels) \
+    action(clRetainProgram) \
+    action(clReleaseProgram) \
+    action(clBuildProgram) \
+    action(clCompileProgram) \
+    action(clLinkProgram) \
+    action(clUnloadPlatformCompiler) \
+    action(clGetProgramInfo) \
+    action(clGetProgramBuildInfo) \
+    action(clCreateKernel) \
+    action(clCreateKernelsInProgram) \
+    action(clRetainKernel) \
+    action(clReleaseKernel) \
+    action(clSetKernelArg) \
+    action(clGetKernelInfo) \
+    action(clGetKernelArgInfo) \
+    action(clGetKernelWorkGroupInfo) \
+    action(clWaitForEvents) \
+    action(clGetEventInfo) \
+    action(clCreateUserEvent) \
+    action(clRetainEvent) \
+    action(clReleaseEvent) \
+    action(clSetUserEventStatus) \
+    action(clSetEventCallback) \
+    action(clGetEventProfilingInfo) \
+    action(clFlush) \
+    action(clFinish) \
+    action(clEnqueueReadBuffer) \
+    action(clEnqueueReadBufferRect) \
+    action(clEnqueueWriteBuffer) \
+    action(clEnqueueWriteBufferRect) \
+    action(clEnqueueFillBuffer) \
+    action(clEnqueueCopyBuffer) \
+    action(clEnqueueCopyBufferRect) \
+    action(clEnqueueReadImage) \
+    action(clEnqueueWriteImage) \
+    action(clEnqueueFillImage) \
+    action(clEnqueueCopyImage) \
+    action(clEnqueueCopyImageToBuffer) \
+    action(clEnqueueCopyBufferToImage) \
+    action(clEnqueueMapBuffer) \
+    action(clEnqueueMapImage) \
+    action(clEnqueueUnmapMemObject) \
+    action(clEnqueueMigrateMemObjects) \
+    action(clEnqueueNDRangeKernel) \
+    action(clEnqueueTask) \
+    action(clEnqueueNativeKernel) \
+    action(clEnqueueMarkerWithWaitList) \
+    action(clEnqueueBarrierWithWaitList) \
+    action(clGetExtensionFunctionAddressForPlatform)
+
+
+
 class OpenClException: public std::runtime_error
 {
 public:
@@ -33,6 +118,7 @@ class OpenClWrapper
 public:
     OpenClWrapper(const std::string& openClPath);
     ~OpenClWrapper();
+
     std::vector<cl_platform_id> getPlatformIds() const;
     std::string getPlatformInfo(
             cl_platform_id platformId,
@@ -41,7 +127,9 @@ public:
             cl_platform_id platformId) const;
     template<class T> T getDeviceInfo(
             cl_device_id deviceId,
-            cl_device_info parameterName);
+            cl_device_info parameterName) const;
+    cl_context createContext(const std::vector<cl_device_id>& deviceIds) const;
+    void releaseContext(cl_context context) const;
 private:
     void* libraryHandle;
 
@@ -50,28 +138,9 @@ private:
             T& functionPointer,
             const std::string& name);
 
-    cl_int CL_API_CALL (*clGetPlatformIDs)(
-            cl_uint num_entries,
-            cl_platform_id* platforms,
-            cl_uint* num_platforms);
-    cl_int CL_API_CALL (*clGetPlatformInfo)(
-            cl_platform_id platform,
-            cl_platform_info param_name,
-            size_t param_value_size,
-            void* param_value,
-            size_t* param_value_size_ret);
-    cl_int CL_API_CALL (*clGetDeviceIDs)(
-            cl_platform_id platform,
-            cl_device_type device_type,
-            cl_uint num_entries,
-            cl_device_id* devices,
-            cl_uint* num_devices);
-    cl_int CL_API_CALL (*clGetDeviceInfo)(
-            cl_device_id device,
-            cl_device_info param_name,
-            size_t param_value_size,
-            void* param_value,
-            size_t* param_value_size_ret);
+    #define DECLARE_FUNCTION_POINTER(function) decltype(&::function) function;
+    PROCESS_OPEN_CL_FUNCTION_LIST(DECLARE_FUNCTION_POINTER)
+    #undef DECLARE_FUNCTION_POINTER
 };
 
 
@@ -79,7 +148,7 @@ private:
 template<class T>
 T OpenClWrapper::getDeviceInfo(
         cl_device_id deviceId,
-        cl_device_info parameterName)
+        cl_device_info parameterName) const
 {
     T result;
     cl_int error = clGetDeviceInfo(deviceId, parameterName, sizeof(result),

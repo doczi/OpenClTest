@@ -8,14 +8,16 @@ SOURCES += \
     clinfogatherer.cpp \
     jsonclinfoserializer.cpp \
     openclwrapper.cpp \
-    clinfo.cpp
+    clinfo.cpp \
+    xmlclinfoserializer.cpp
 
 HEADERS += \
     clinfogatherer.h \
     clinfo.h \
     clinfoserializer.h \
     jsonclinfoserializer.h \
-    openclwrapper.h
+    openclwrapper.h \
+    xmlclinfoserializer.h
 
 INCLUDEPATH += \
     include \

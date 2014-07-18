@@ -4,17 +4,13 @@
 
 
 
-#define BIND(function) bindFunction(function, #function);
-
-
-
 OpenClWrapper::OpenClWrapper(const std::string& openClPath)
 {
     libraryHandle = openLibrary(openClPath);
-    BIND(clGetPlatformIDs);
-    BIND(clGetPlatformInfo);
-    BIND(clGetDeviceIDs);
-    BIND(clGetDeviceInfo);
+
+    #define BIND_FUNCTION_POINTER(function) bindFunction(function, #function);
+    PROCESS_OPEN_CL_FUNCTION_LIST(BIND_FUNCTION_POINTER)
+    #undef BIND_FUNCTION_POINTER
 }
 
 
@@ -90,7 +86,7 @@ std::vector<cl_device_id> OpenClWrapper::getDeviceIds(
 template<>
 std::string OpenClWrapper::getDeviceInfo<std::string>(
         cl_device_id deviceId,
-        cl_device_info parameterName)
+        cl_device_info parameterName) const
 {
     size_t resultSize;
     cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
@@ -113,7 +109,7 @@ std::string OpenClWrapper::getDeviceInfo<std::string>(
 template<>
 std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
         cl_device_id deviceId,
-        cl_device_info parameterName)
+        cl_device_info parameterName) const
 {
     size_t resultSize;
     cl_int error = clGetDeviceInfo(deviceId, parameterName, 0, nullptr,
@@ -136,7 +132,7 @@ std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
 template<>
 bool OpenClWrapper::getDeviceInfo<bool>(
         cl_device_id deviceId,
-        cl_device_info parameterName)
+        cl_device_info parameterName) const
 {
     cl_bool result;
     cl_int error = clGetDeviceInfo(deviceId, parameterName, sizeof(result),
@@ -145,6 +141,27 @@ bool OpenClWrapper::getDeviceInfo<bool>(
         throw OpenClException("Cannot get device info", error);
     }
     return result;
+}
+
+
+
+cl_context OpenClWrapper::createContext(
+        const std::vector<cl_device_id>& deviceIds) const
+{
+    cl_int error;
+    cl_context result = clCreateContext(nullptr, deviceIds.size(),
+            deviceIds.data(), nullptr, nullptr, &error);
+    if (error != CL_SUCCESS) {
+        throw OpenClException("Cannot create context", error);
+    }
+    return result;
+}
+
+
+
+void OpenClWrapper::releaseContext(cl_context context) const
+{
+    clReleaseContext(context);
 }
 
 
