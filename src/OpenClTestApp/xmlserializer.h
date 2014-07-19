@@ -14,10 +14,10 @@ class XmlSerializer: public Serializer
 public:
     std::string serialize(const ClInfo& info) const override;
     rapidxml::xml_node<>* platformToNode(
-            const ClPlatformInfo& platform,
+            const ClPlatformInfo& platformInfo,
             rapidxml::xml_document<>& document) const;
     rapidxml::xml_node<>* deviceToNode(
-            const ClDeviceInfo& device,
+            const ClDeviceInfo& deviceInfo,
             rapidxml::xml_document<>& document) const;
     rapidxml::xml_node<>* parameterToNode(
             const std::string& name,

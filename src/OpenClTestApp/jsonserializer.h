@@ -19,10 +19,18 @@ class JsonSerializer: public Serializer
 public:
     std::string serialize(const ClInfo& info) const override;
 private:
-    void setJsonValue(
+    void setJsonValueToPlatform(
             rapidjson::Value& jsonValue,
             rapidjson::MemoryPoolAllocator<>& allocator,
-            const ClParameter& clValue) const;
+            const ClPlatformInfo& platformInfo) const;
+    void setJsonValueToDevice(
+            rapidjson::Value& jsonValue,
+            rapidjson::MemoryPoolAllocator<>& allocator,
+            const ClDeviceInfo& deviceInfo) const;
+    void setJsonValueToParameter(
+            rapidjson::Value& jsonValue,
+            rapidjson::MemoryPoolAllocator<>& allocator,
+            const ClParameter& parameter) const;
 };
 
 

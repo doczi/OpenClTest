@@ -15,28 +15,9 @@ std::string JsonSerializer::serialize(const ClInfo& info) const
     rapidjson::MemoryPoolAllocator<>& allocator = document.GetAllocator();
 
     for (const ClPlatformInfo& platformInfo: info.platforms) {
-        rapidjson::Value platform;
-        platform.SetObject();
-        for (const auto& field: platformInfo.parameters) {
-            rapidjson::Value jsonValue;
-            setJsonValue(jsonValue, allocator, field.second);
-            platform.AddMember(field.first.c_str(), jsonValue, allocator);
-        }
-
-        rapidjson::Value devices;
-        devices.SetArray();
-        for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
-            rapidjson::Value device;
-            device.SetObject();
-            for (const auto& field: deviceInfo.parameters) {
-                rapidjson::Value jsonValue;
-                setJsonValue(jsonValue, allocator, field.second);
-                device.AddMember(field.first.c_str(), jsonValue, allocator);
-            }
-            devices.PushBack(device, document.GetAllocator());
-        }
-        platform.AddMember("devices", devices, document.GetAllocator());
-        document.PushBack(platform, document.GetAllocator());
+        rapidjson::Value platformValue;
+        setJsonValueToPlatform(platformValue, allocator, platformInfo);
+        document.PushBack(platformValue, document.GetAllocator());
     }
 
     rapidjson::StringBuffer stringBuffer;
@@ -47,7 +28,46 @@ std::string JsonSerializer::serialize(const ClInfo& info) const
 
 
 
-void JsonSerializer::setJsonValue(
+void JsonSerializer::setJsonValueToPlatform(
+        rapidjson::Value& jsonValue,
+        rapidjson::MemoryPoolAllocator<>& allocator,
+        const ClPlatformInfo& platformInfo) const
+{
+    jsonValue.SetObject();
+    for (const auto& parameter: platformInfo.parameters) {
+        rapidjson::Value parameterValue;
+        setJsonValueToParameter(parameterValue, allocator, parameter.second);
+        jsonValue.AddMember(parameter.first.c_str(), parameterValue, allocator);
+    }
+
+    rapidjson::Value devices;
+    devices.SetArray();
+    for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
+        rapidjson::Value deviceValue;
+        setJsonValueToDevice(deviceValue, allocator, deviceInfo);
+        devices.PushBack(deviceValue, allocator);
+    }
+    jsonValue.AddMember("devices", devices, allocator);
+}
+
+
+
+void JsonSerializer::setJsonValueToDevice(
+        rapidjson::Value& jsonValue,
+        rapidjson::MemoryPoolAllocator<>& allocator,
+        const ClDeviceInfo& deviceInfo) const
+{
+    jsonValue.SetObject();
+    for (const auto& parameter: deviceInfo.parameters) {
+        rapidjson::Value parameterValue;
+        setJsonValueToParameter(parameterValue, allocator, parameter.second);
+        jsonValue.AddMember(parameter.first.c_str(), parameterValue, allocator);
+    }
+}
+
+
+
+void JsonSerializer::setJsonValueToParameter(
         rapidjson::Value& jsonValue,
         rapidjson::MemoryPoolAllocator<>& allocator,
         const ClParameter& clValue) const
