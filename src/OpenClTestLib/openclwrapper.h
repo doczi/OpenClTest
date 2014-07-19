@@ -23,7 +23,11 @@ public:
     template<class T> T getDeviceInfo(
             cl_device_id deviceId,
             cl_device_info parameterName) const;
-    std::vector<std::string> getProgramBinaries() const;
+    std::string getBuildLog(
+            cl_program program,
+            cl_device_id device) const;
+    std::vector<std::vector<unsigned char> > getProgramBinaries(
+            cl_program program) const;
 private:
     OpenCl_1_0_Binder* binder;
 };

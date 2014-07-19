@@ -6,8 +6,9 @@
 
 
 
-ClInfoGatherer::ClInfoGatherer(OpenClWrapper& openClWrapper):
-    openClWrapper(&openClWrapper)
+ClInfoGatherer::ClInfoGatherer(OpenCl_1_0_Binder& clBinder):
+    binder(clBinder),
+    wrapper(clBinder)
 {}
 
 
@@ -15,7 +16,7 @@ ClInfoGatherer::ClInfoGatherer(OpenClWrapper& openClWrapper):
 ClInfo ClInfoGatherer::gatherInfo()
 {
     ClInfo result;
-    std::vector<cl_platform_id> platformIds = openClWrapper->getPlatformIds();
+    std::vector<cl_platform_id> platformIds = wrapper.getPlatformIds();
     for (cl_platform_id platformId: platformIds) {
         result.platforms.emplace_back(gatherPlatformInfo(platformId));
     }
@@ -28,17 +29,17 @@ ClPlatformInfo ClInfoGatherer::gatherPlatformInfo(cl_platform_id platformId)
 {
     ClPlatformInfo result;
     result.parameters.emplace("CL_PLATFORM_PROFILE",
-            openClWrapper->getPlatformInfo(platformId, CL_PLATFORM_PROFILE));
+            wrapper.getPlatformInfo(platformId, CL_PLATFORM_PROFILE));
     result.parameters.emplace("CL_PLATFORM_VERSION",
-            openClWrapper->getPlatformInfo(platformId, CL_PLATFORM_VERSION));
+            wrapper.getPlatformInfo(platformId, CL_PLATFORM_VERSION));
     result.parameters.emplace("CL_PLATFORM_NAME",
-            openClWrapper->getPlatformInfo(platformId, CL_PLATFORM_NAME));
+            wrapper.getPlatformInfo(platformId, CL_PLATFORM_NAME));
     result.parameters.emplace("CL_PLATFORM_VENDOR",
-            openClWrapper->getPlatformInfo(platformId, CL_PLATFORM_VENDOR));
+            wrapper.getPlatformInfo(platformId, CL_PLATFORM_VENDOR));
     result.parameters.emplace("CL_PLATFORM_EXTENSIONS",
-            openClWrapper->getPlatformInfo(platformId, CL_PLATFORM_EXTENSIONS));
+            wrapper.getPlatformInfo(platformId, CL_PLATFORM_EXTENSIONS));
     std::vector<cl_device_id> deviceIds =
-            openClWrapper->getDeviceIds(platformId);
+            wrapper.getDeviceIds(platformId);
     for (cl_device_id deviceId: deviceIds) {
         result.devices.emplace_back(gatherDeviceInfo(deviceId));
     }
@@ -49,10 +50,10 @@ ClPlatformInfo ClInfoGatherer::gatherPlatformInfo(cl_platform_id platformId)
 
 #define DEVICE_PARAMETER(type, parameterName) std::make_pair( \
         std::string(#parameterName), \
-        openClWrapper->getDeviceInfo<type>(deviceId, parameterName))
+        wrapper.getDeviceInfo<type>(deviceId, parameterName))
 
 #define DEVICE_PARAMETER2(type, parameterName, valueType) std::make_pair( \
-        #parameterName, ClParameter(openClWrapper->getDeviceInfo<type>( \
+        #parameterName, ClParameter(wrapper.getDeviceInfo<type>( \
         deviceId, parameterName), valueType))
 
 ClDeviceInfo ClInfoGatherer::gatherDeviceInfo(cl_device_id deviceId)
@@ -123,13 +124,89 @@ ClDeviceInfo ClInfoGatherer::gatherDeviceInfo(cl_device_id deviceId)
 
 
 
+std::string ClInfoGatherer::testCompilation()
+{
+    /*
+     * I copied this kernel from here:
+     * https://developer.apple.com/library/mac/samplecode/OpenCL_Hello_World_Example/Introduction/Intro.html
+     */
+    const char *KERNEL_SOURCE = "\n"
+    "__kernel void square(                   \n"
+    "   __global float* input,               \n"
+    "   __global float* output,              \n"
+    "   const unsigned int count)            \n"
+    "{                                       \n"
+    "   int i = get_global_id(0);            \n"
+    "   if(i < count)                        \n"
+    "       output[i] = input[i] * input[i]; \n"
+    "}                                       \n"
+    "\n";
+
+    /*
+     * The C++ API is not usable due to the dynamic loading requirement, and
+     * wrapping the whole C API would be a tedious job, so resort to using the
+     * C style error codes. Exception safety is guaranteed by the unique_ptr
+     * deleters.
+     */
+    int err;
+
+    cl_platform_id platformId = wrapper.getPlatformIds().at(0);
+    cl_device_id deviceId = wrapper.getDeviceIds(platformId).at(0);
+
+    std::unique_ptr<_cl_context, decltype(binder.clReleaseContext)> context(
+            binder.clCreateContext(0, 1, &deviceId, nullptr, nullptr, &err),
+            binder.clReleaseContext);
+    if (!context) {
+        throw OpenClException("Failed to create a compute context!", err);
+    }
+
+    std::unique_ptr<_cl_command_queue,
+            decltype(binder.clReleaseCommandQueue)> commands(
+            binder.clCreateCommandQueue(context.get(), deviceId, 0, &err),
+            binder.clReleaseCommandQueue);
+    if (!commands) {
+        throw OpenClException("Failed to create a command commands!", err);
+    }
+
+    std::unique_ptr<_cl_program, decltype(binder.clReleaseProgram)> program(
+            binder.clCreateProgramWithSource(context.get(), 1,
+                    &KERNEL_SOURCE, nullptr, &err),
+            binder.clReleaseProgram);
+    if (!program) {
+        throw OpenClException("Failed to create compute program!", err);
+    }
+
+    err = binder.clBuildProgram(program.get(), 0, nullptr, nullptr, nullptr,
+            nullptr);
+    if (err != CL_SUCCESS) {
+        throw OpenClException(wrapper.getBuildLog(program.get(), deviceId));
+    }
+
+    cl_build_status buildStatus;
+    err = binder.clGetProgramBuildInfo(program.get(), deviceId,
+            CL_PROGRAM_BUILD_STATUS, sizeof(buildStatus), &buildStatus,
+            nullptr);
+    if (err != CL_SUCCESS) {
+        throw OpenClException("Failed to get build status!", err);
+    }
+    if (buildStatus != CL_BUILD_SUCCESS) {
+        throw OpenClException(wrapper.getBuildLog(program.get(), deviceId));
+    }
+
+    std::ostringstream oss;
+    oss << "Build status: " << buildStatus;
+    return oss.str();
+}
+
+
+
 template<class T>
-std::pair<std::string, std::string> ClInfoGatherer::getDeviceField(
+std::pair<std::string, std::string> ClInfoGatherer::getDeviceParameter(
         cl_device_id deviceId,
         const std::string fieldName,
         cl_device_info fieldId) const
 {
     std::ostringstream oss;
-    oss << openClWrapper->getDeviceInfo<T>(deviceId, fieldId);
+    oss << wrapper.getDeviceInfo<T>(deviceId, fieldId);
     return std::make_pair(fieldName, oss.str());
 }

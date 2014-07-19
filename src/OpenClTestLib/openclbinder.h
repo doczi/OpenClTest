@@ -127,6 +127,8 @@
 
 /**
  * Provides access to OpenCL 1.0 functions loaded dynamically in runtime.
+ * @note If the construction of a subclass object succeeds, then functions from
+ * that OpenCL version are guaranteed to be usable.
  */
 class OpenCl_1_0_Binder
 {
@@ -141,9 +143,6 @@ public:
 
 
 
-/**
- * Provides access to OpenCL 1.1 functions loaded dynamically in runtime.
- */
 class OpenCl_1_1_Binder: public OpenCl_1_0_Binder
 {
 public:
@@ -153,9 +152,6 @@ public:
 
 
 
-/**
- * Provides access to OpenCL 1.2 functions loaded dynamically in runtime.
- */
 class OpenCl_1_2_Binder: public OpenCl_1_1_Binder
 {
 public:
@@ -165,19 +161,12 @@ public:
 
 
 
-/**
- * Provides access to OpenCL 2.0 functions loaded dynamically in runtime.
- */
 class OpenCl_2_0_Binder: public OpenCl_1_2_Binder
 {
 public:
     OpenCl_2_0_Binder(const std::string& openClPath);
     OCLB_PROCESS_CL_2_0_FUNCTIONS(OCLB_DECLARE_POINTER)
 };
-
-
-
-#undef OCLB_DECLARE_POINTER
 
 
 
