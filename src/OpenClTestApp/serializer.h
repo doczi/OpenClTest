@@ -5,10 +5,16 @@
 
 
 
+class ClDeviceInfo;
 class ClInfo;
+class ClParameter;
+class ClPlatformInfo;
 
 
 
+/**
+ * Abstract base class for objects that serialize a ClInfo object into a string.
+ */
 class Serializer
 {
 public:

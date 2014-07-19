@@ -10,36 +10,58 @@ std::string XmlSerializer::serialize(const ClInfo& info) const
 {
     rapidxml::xml_document<> document;
     for (const ClPlatformInfo& platformInfo: info.platforms) {
-        rapidxml::xml_node<>* platform = document.allocate_node(
-                rapidxml::node_element, "Platform");
-        for (const auto& field: platformInfo.parameters) {
-            rapidxml::xml_node<>* parameter = document.allocate_node(
-                    rapidxml::node_element, "Parameter");
-            parameter->append_attribute(document.allocate_attribute(
-                    "name", field.first.c_str()));
-            parameter->append_attribute(document.allocate_attribute(
-                    "value", document.allocate_string(
-                            field.second.toString().c_str())));
-            platform->append_node(parameter);
-        }
-        for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
-            rapidxml::xml_node<>* device =
-                    document.allocate_node(rapidxml::node_element, "Device");
-            for (const auto& field: deviceInfo.parameters) {
-                rapidxml::xml_node<>* parameter = document.allocate_node(
-                        rapidxml::node_element, "Parameter");
-                parameter->append_attribute(document.allocate_attribute(
-                        "name", field.first.c_str()));
-                parameter->append_attribute(document.allocate_attribute(
-                        "value", document.allocate_string(
-                                field.second.toString().c_str())));
-                device->append_node(parameter);
-            }
-            platform->append_node(device);
-        }
-        document.append_node(platform);
+        document.append_node(platformToNode(platformInfo, document));
     }
     std::string result;
     rapidxml::print(std::back_inserter(result), document, 0);
     return result;
+}
+
+
+
+rapidxml::xml_node<>* XmlSerializer::platformToNode(
+        const ClPlatformInfo& platform,
+        rapidxml::xml_document<>& document) const
+{
+    rapidxml::xml_node<>* platformNode = document.allocate_node(
+            rapidxml::node_element, "Platform");
+    for (const auto& parameter: platform.parameters) {
+        platformNode->append_node(
+                parameterToNode(parameter.first, parameter.second, document));
+    }
+    for (const ClDeviceInfo& deviceInfo: platform.devices) {
+        platformNode->append_node(deviceToNode(deviceInfo, document));
+    }
+    return platformNode;
+}
+
+
+
+rapidxml::xml_node<>* XmlSerializer::deviceToNode(
+        const ClDeviceInfo& device,
+        rapidxml::xml_document<>& document) const
+{
+    rapidxml::xml_node<>* deviceNode =
+            document.allocate_node(rapidxml::node_element, "Device");
+    for (const auto& parameter: device.parameters) {
+        deviceNode->append_node(
+                parameterToNode(parameter.first, parameter.second, document));
+    }
+    return deviceNode;
+}
+
+
+
+rapidxml::xml_node<>* XmlSerializer::parameterToNode(
+        const std::string& name,
+        const ClParameter& parameter,
+        rapidxml::xml_document<>& document) const
+{
+    rapidxml::xml_node<>* parameterNode = document.allocate_node(
+            rapidxml::node_element, "Parameter");
+    parameterNode->append_attribute(document.allocate_attribute(
+            "name", document.allocate_string(name.c_str())));
+    parameterNode->append_attribute(document.allocate_attribute(
+            "value", document.allocate_string(parameter.toString().c_str())));
+    return parameterNode;
 }

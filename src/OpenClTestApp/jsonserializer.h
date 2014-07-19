@@ -11,6 +11,9 @@ class ClParameter;
 
 
 
+/**
+ * Serializes a ClInfo object into JSON format.
+ */
 class JsonSerializer: public Serializer
 {
 public:

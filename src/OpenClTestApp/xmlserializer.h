@@ -6,10 +6,23 @@
 
 
 
+/**
+ * Serializes a ClInfo object into XML format.
+ */
 class XmlSerializer: public Serializer
 {
 public:
     std::string serialize(const ClInfo& info) const override;
+    rapidxml::xml_node<>* platformToNode(
+            const ClPlatformInfo& platform,
+            rapidxml::xml_document<>& document) const;
+    rapidxml::xml_node<>* deviceToNode(
+            const ClDeviceInfo& device,
+            rapidxml::xml_document<>& document) const;
+    rapidxml::xml_node<>* parameterToNode(
+            const std::string& name,
+            const ClParameter& parameter,
+            rapidxml::xml_document<>& document) const;
 };
 
 
