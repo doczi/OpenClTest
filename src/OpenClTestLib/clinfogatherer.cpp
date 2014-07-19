@@ -52,7 +52,7 @@ ClPlatformInfo ClInfoGatherer::gatherPlatformInfo(cl_platform_id platformId)
         openClWrapper->getDeviceInfo<type>(deviceId, parameterName))
 
 #define DEVICE_PARAMETER2(type, parameterName, valueType) std::make_pair( \
-        #parameterName, ClValue(openClWrapper->getDeviceInfo<type>( \
+        #parameterName, ClParameter(openClWrapper->getDeviceInfo<type>( \
         deviceId, parameterName), valueType))
 
 ClDeviceInfo ClInfoGatherer::gatherDeviceInfo(cl_device_id deviceId)

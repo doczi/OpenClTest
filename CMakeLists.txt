@@ -4,7 +4,8 @@ project (OpenClTest)
 include_directories(
     ${OpenClTest_SOURCE_DIR}/include
     ${OpenClTest_SOURCE_DIR}/src/OpenClTestLib)
-set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
+set(CMAKE_CXX_FLAGS "-std=c++11 -Wno-deprecated-declarations ${CMAKE_CXX_FLAGS}")
+# Some OpenCL declarations are deprecated but still used.
 
 add_subdirectory(src)
 

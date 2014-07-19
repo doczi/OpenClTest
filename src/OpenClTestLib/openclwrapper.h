@@ -12,7 +12,7 @@
 class OpenClWrapper
 {
 public:
-    OpenClWrapper(OpenClBinder& binder);
+    OpenClWrapper(OpenCl_1_0_Binder& binder);
 
     std::vector<cl_platform_id> getPlatformIds() const;
     std::string getPlatformInfo(
@@ -25,10 +25,25 @@ public:
             cl_device_info parameterName) const;
     std::vector<std::string> getProgramBinaries() const;
 private:
-    OpenClBinder* binder;
+    OpenCl_1_0_Binder* binder;
 };
 
 
+
+template<>
+std::string OpenClWrapper::getDeviceInfo<std::string>(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
+
+template<>
+std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
+
+template<>
+bool OpenClWrapper::getDeviceInfo<bool>(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
 
 template<class T>
 T OpenClWrapper::getDeviceInfo(

@@ -2,7 +2,7 @@
 
 
 
-OpenClWrapper::OpenClWrapper(OpenClBinder& binder):
+OpenClWrapper::OpenClWrapper(OpenCl_1_0_Binder& binder):
     binder(&binder)
 {}
 

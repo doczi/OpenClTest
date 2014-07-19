@@ -3,5 +3,7 @@ add_library (OpenClTest SHARED
     clinfogatherer.cpp
     openclbinder.cpp
     openclwrapper.cpp)
-target_link_libraries(OpenClTest dl)
 
+if(${CMAKE_SYSTEM_NAME} MATCHES "Linux")
+    target_link_libraries(OpenClTest dl)
+endif(${CMAKE_SYSTEM_NAME} MATCHES "Linux")

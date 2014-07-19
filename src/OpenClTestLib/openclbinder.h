@@ -10,14 +10,11 @@
 
 
 
-#define OCLB_PROCESS_OPEN_CL_FUNCTIONS(action) \
+#define OCLB_PROCESS_CL_1_0_FUNCTIONS(action) \
         action(clGetPlatformIDs) \
         action(clGetPlatformInfo) \
         action(clGetDeviceIDs) \
         action(clGetDeviceInfo) \
-        action(clCreateSubDevices) \
-        action(clRetainDevice) \
-        action(clReleaseDevice) \
         action(clCreateContext) \
         action(clCreateContextFromType) \
         action(clRetainContext) \
@@ -28,27 +25,22 @@
         action(clReleaseCommandQueue) \
         action(clGetCommandQueueInfo) \
         action(clCreateBuffer) \
-        action(clCreateSubBuffer) \
-        action(clCreateImage) \
+        action(clCreateImage2D) \
+        action(clCreateImage3D) \
         action(clRetainMemObject) \
         action(clReleaseMemObject) \
         action(clGetSupportedImageFormats) \
         action(clGetMemObjectInfo) \
         action(clGetImageInfo) \
-        action(clSetMemObjectDestructorCallback) \
         action(clCreateSampler) \
         action(clRetainSampler) \
         action(clReleaseSampler) \
         action(clGetSamplerInfo) \
         action(clCreateProgramWithSource) \
         action(clCreateProgramWithBinary) \
-        action(clCreateProgramWithBuiltInKernels) \
         action(clRetainProgram) \
         action(clReleaseProgram) \
         action(clBuildProgram) \
-        action(clCompileProgram) \
-        action(clLinkProgram) \
-        action(clUnloadPlatformCompiler) \
         action(clGetProgramInfo) \
         action(clGetProgramBuildInfo) \
         action(clCreateKernel) \
@@ -57,63 +49,135 @@
         action(clReleaseKernel) \
         action(clSetKernelArg) \
         action(clGetKernelInfo) \
-        action(clGetKernelArgInfo) \
         action(clGetKernelWorkGroupInfo) \
         action(clWaitForEvents) \
         action(clGetEventInfo) \
-        action(clCreateUserEvent) \
         action(clRetainEvent) \
         action(clReleaseEvent) \
-        action(clSetUserEventStatus) \
-        action(clSetEventCallback) \
         action(clGetEventProfilingInfo) \
         action(clFlush) \
         action(clFinish) \
         action(clEnqueueReadBuffer) \
-        action(clEnqueueReadBufferRect) \
         action(clEnqueueWriteBuffer) \
-        action(clEnqueueWriteBufferRect) \
-        action(clEnqueueFillBuffer) \
         action(clEnqueueCopyBuffer) \
-        action(clEnqueueCopyBufferRect) \
         action(clEnqueueReadImage) \
         action(clEnqueueWriteImage) \
-        action(clEnqueueFillImage) \
         action(clEnqueueCopyImage) \
         action(clEnqueueCopyImageToBuffer) \
         action(clEnqueueCopyBufferToImage) \
         action(clEnqueueMapBuffer) \
         action(clEnqueueMapImage) \
         action(clEnqueueUnmapMemObject) \
-        action(clEnqueueMigrateMemObjects) \
         action(clEnqueueNDRangeKernel) \
-        action(clEnqueueTask) \
         action(clEnqueueNativeKernel) \
+        action(clEnqueueMarker) \
+        action(clEnqueueWaitForEvents) \
+        action(clEnqueueBarrier) \
+        action(clEnqueueTask) \
+        action(clUnloadCompiler) \
+        action(clGetExtensionFunctionAddress)
+
+#define OCLB_PROCESS_CL_1_1_FUNCTIONS(action) \
+        action(clCreateSubBuffer) \
+        action(clSetMemObjectDestructorCallback) \
+        action(clCreateUserEvent) \
+        action(clSetUserEventStatus) \
+        action(clSetEventCallback) \
+        action(clEnqueueReadBufferRect) \
+        action(clEnqueueWriteBufferRect) \
+        action(clEnqueueCopyBufferRect)
+
+#define OCLB_PROCESS_CL_1_2_FUNCTIONS(action) \
+        action(clCreateSubDevices) \
+        action(clRetainDevice) \
+        action(clReleaseDevice) \
+        action(clCreateImage) \
+        action(clCreateProgramWithBuiltInKernels) \
+        action(clCompileProgram) \
+        action(clLinkProgram) \
+        action(clUnloadPlatformCompiler) \
+        action(clGetKernelArgInfo) \
+        action(clEnqueueFillBuffer) \
+        action(clEnqueueFillImage) \
+        action(clEnqueueMigrateMemObjects) \
         action(clEnqueueMarkerWithWaitList) \
         action(clEnqueueBarrierWithWaitList) \
         action(clGetExtensionFunctionAddressForPlatform)
 
+#define OCLB_PROCESS_CL_2_0_FUNCTIONS(action) \
+        action(clCreateCommandQueueWithProperties) \
+        action(clCreatePipe) \
+        action(clGetPipeInfo) \
+        action(clSVMAlloc) \
+        action(clSVMFree) \
+        action(clCreateSamplerWithProperties) \
+        action(clSetKernelArgSVMPointer) \
+        action(clSetKernelExecInfo) \
+        action(clEnqueueSVMFree) \
+        action(clEnqueueSVMMemcpy) \
+        action(clEnqueueSVMMemFill) \
+        action(clEnqueueSVMMap) \
+        action(clEnqueueSVMUnmap)
+
+
+
+#define OCLB_DECLARE_POINTER(function) decltype(&::function) const function;
+
 
 
 /**
- * Provides access to OpenCL functions loaded dynamically in runtime.
+ * Provides access to OpenCL 1.0 functions loaded dynamically in runtime.
  */
-class OpenClBinder
+class OpenCl_1_0_Binder
 {
-private:
-    std::unique_ptr<void, int(*)(void*)> libraryHandle;
+protected:
+    class Loader;
+    std::unique_ptr<Loader> loader;
 public:
-    OpenClBinder(const std::string& openClPath);
-
-    #define OCLB_DECLARE_POINTER(function) decltype(&::function) const function;
-    OCLB_PROCESS_OPEN_CL_FUNCTIONS(OCLB_DECLARE_POINTER)
-    #undef OCLB_DECLARE_POINTER
-private:
-    void* openLibrary(const std::string& path);
-    template<class T> T bindFunction(const std::string& name);
-    OpenClBinder(const OpenClBinder&) = delete;
-    OpenClBinder& operator=(const OpenClBinder&) = delete;
+    OpenCl_1_0_Binder(const std::string& openClPath);
+    virtual ~OpenCl_1_0_Binder();
+    OCLB_PROCESS_CL_1_0_FUNCTIONS(OCLB_DECLARE_POINTER)
 };
+
+
+
+/**
+ * Provides access to OpenCL 1.1 functions loaded dynamically in runtime.
+ */
+class OpenCl_1_1_Binder: public OpenCl_1_0_Binder
+{
+public:
+    OpenCl_1_1_Binder(const std::string& openClPath);
+    OCLB_PROCESS_CL_1_1_FUNCTIONS(OCLB_DECLARE_POINTER)
+};
+
+
+
+/**
+ * Provides access to OpenCL 1.2 functions loaded dynamically in runtime.
+ */
+class OpenCl_1_2_Binder: public OpenCl_1_1_Binder
+{
+public:
+    OpenCl_1_2_Binder(const std::string& openClPath);
+    OCLB_PROCESS_CL_1_2_FUNCTIONS(OCLB_DECLARE_POINTER)
+};
+
+
+
+/**
+ * Provides access to OpenCL 2.0 functions loaded dynamically in runtime.
+ */
+class OpenCl_2_0_Binder: public OpenCl_1_2_Binder
+{
+public:
+    OpenCl_2_0_Binder(const std::string& openClPath);
+    OCLB_PROCESS_CL_2_0_FUNCTIONS(OCLB_DECLARE_POINTER)
+};
+
+
+
+#undef OCLB_DECLARE_POINTER
 
 
 

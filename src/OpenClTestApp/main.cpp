@@ -32,7 +32,7 @@ int main(int argc, char* argv[])
             throw std::runtime_error("Unknown format.");
         }
         Serializer& serializer = *(foundSerializer->second);
-        OpenClBinder openClBinder(libraryPath);
+        OpenCl_1_0_Binder openClBinder(libraryPath);
         OpenClWrapper openClWrapper(openClBinder);
         ClInfoGatherer infoGatherer(openClWrapper);
         ClInfo info = infoGatherer.gatherInfo();
@@ -83,31 +83,32 @@ const char *KernelSource = "\n" \
 
 void compileKernel()
 {
-    OpenClBinder* binder;
+    OpenCl_1_2_Binder* binder;
     int err;
 
     cl_device_id deviceId;
-    err = binder->clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &deviceId,
+    err = binder->clGetDeviceIDs(nullptr, CL_DEVICE_TYPE_GPU, 1, &deviceId,
             nullptr);
     if (err != CL_SUCCESS) {
         throw OpenClException("Failed to create a device group!", err);
     }
 
-    std::unique_ptr<_cl_context, cl_int(*)(cl_context)> context(
+    std::unique_ptr<_cl_context, decltype(binder->clReleaseContext)> context(
             binder->clCreateContext(0, 1, &deviceId, nullptr, nullptr, &err),
             binder->clReleaseContext);
     if (!context) {
         throw OpenClException("Failed to create a compute context!", err);
     }
 
-    std::unique_ptr<_cl_command_queue, cl_int(*)(cl_command_queue)> commands(
+    std::unique_ptr<_cl_command_queue, decltype(binder->clReleaseCommandQueue)>
+            commands(
             binder->clCreateCommandQueue(context.get(), deviceId, 0, &err),
             binder->clReleaseCommandQueue);
     if (!commands) {
         throw OpenClException("Failed to create a command commands!", err);
     }
 
-    std::unique_ptr<_cl_program, cl_int(*)(cl_program)> program(
+    std::unique_ptr<_cl_program, decltype(binder->clReleaseProgram)> program(
             binder->clCreateProgramWithSource(context.get(), 1,
                     (const char**)&KernelSource, nullptr, &err),
             binder->clReleaseProgram);
