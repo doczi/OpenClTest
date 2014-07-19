@@ -8,7 +8,7 @@
 #define VC_EXTRALEAN
 #include <windows.h>
 
-class OpenClBinder::Loader
+class OpenCl_1_0_Binder::Loader
 {
 public:
     Loader(const std::string& libraryPath) {
