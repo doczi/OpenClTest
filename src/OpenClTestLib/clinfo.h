@@ -8,7 +8,7 @@
 
 
 
-class ClValue
+class ClParameter
 {
 public:
     enum class Type {
@@ -30,11 +30,11 @@ public:
     std::string text;
     std::vector<size_t> sizeArray;
 
-    ClValue(bool boolean);
-    ClValue(uint32_t number);
-    ClValue(uint64_t number, Type type = Type::NUMBER);
-    ClValue(const std::string& text);
-    ClValue(const std::vector<size_t> sizeArray);
+    ClParameter(bool boolean);
+    ClParameter(uint32_t number);
+    ClParameter(uint64_t number, Type type = Type::NUMBER);
+    ClParameter(const std::string& text);
+    ClParameter(const std::vector<size_t> sizeArray);
     std::string toString() const;
 private:
     static std::string formatNumber(uint64_t number);
@@ -49,7 +49,7 @@ private:
 class ClDeviceInfo
 {
 public:
-    std::map<std::string, ClValue> fields;
+    std::map<std::string, ClParameter> parameters;
 };
 
 
@@ -57,7 +57,7 @@ public:
 class ClPlatformInfo
 {
 public:
-    std::map<std::string, ClValue> fields;
+    std::map<std::string, ClParameter> parameters;
     std::vector<ClDeviceInfo> devices;
 };
 

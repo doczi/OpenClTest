@@ -86,22 +86,22 @@ void compileKernel()
     OpenClBinder* binder;
     int err;
 
-    cl_device_id device_id;
-    err = binder->clGetDeviceIDs(NULL, CL_DEVICE_TYPE_ALL, 1, &device_id,
+    cl_device_id deviceId;
+    err = binder->clGetDeviceIDs(NULL, CL_DEVICE_TYPE_GPU, 1, &deviceId,
             nullptr);
     if (err != CL_SUCCESS) {
         throw OpenClException("Failed to create a device group!", err);
     }
 
     std::unique_ptr<_cl_context, cl_int(*)(cl_context)> context(
-            binder->clCreateContext(0, 1, &device_id, nullptr, nullptr, &err),
+            binder->clCreateContext(0, 1, &deviceId, nullptr, nullptr, &err),
             binder->clReleaseContext);
     if (!context) {
         throw OpenClException("Failed to create a compute context!", err);
     }
 
     std::unique_ptr<_cl_command_queue, cl_int(*)(cl_command_queue)> commands(
-            binder->clCreateCommandQueue(context.get(), device_id, 0, &err),
+            binder->clCreateCommandQueue(context.get(), deviceId, 0, &err),
             binder->clReleaseCommandQueue);
     if (!commands) {
         throw OpenClException("Failed to create a command commands!", err);
@@ -120,4 +120,14 @@ void compileKernel()
     if (err != CL_SUCCESS) {
         throw OpenClException("Failed to build program executable!", err);
     }
+
+    cl_build_status buildStatus;
+    err = binder->clGetProgramBuildInfo(program.get(), deviceId,
+            CL_PROGRAM_BUILD_STATUS, sizeof(buildStatus), &buildStatus,
+            nullptr);
+    if (err != CL_SUCCESS) {
+        throw OpenClException("Failed to get build status!", err);
+    }
+
+    //err = binder->clGetProgramInfo(program.get(), CL_PROGRAM_BINARIES)
 }

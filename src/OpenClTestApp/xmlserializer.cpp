@@ -12,7 +12,7 @@ std::string XmlSerializer::serialize(const ClInfo& info) const
     for (const ClPlatformInfo& platformInfo: info.platforms) {
         rapidxml::xml_node<>* platform = document.allocate_node(
                 rapidxml::node_element, "Platform");
-        for (const auto& field: platformInfo.fields) {
+        for (const auto& field: platformInfo.parameters) {
             rapidxml::xml_node<>* parameter = document.allocate_node(
                     rapidxml::node_element, "Parameter");
             parameter->append_attribute(document.allocate_attribute(
@@ -25,7 +25,7 @@ std::string XmlSerializer::serialize(const ClInfo& info) const
         for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
             rapidxml::xml_node<>* device =
                     document.allocate_node(rapidxml::node_element, "Device");
-            for (const auto& field: deviceInfo.fields) {
+            for (const auto& field: deviceInfo.parameters) {
                 rapidxml::xml_node<>* parameter = document.allocate_node(
                         rapidxml::node_element, "Parameter");
                 parameter->append_attribute(document.allocate_attribute(

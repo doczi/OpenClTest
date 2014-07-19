@@ -7,7 +7,7 @@
 
 
 
-class ClValue;
+class ClParameter;
 
 
 
@@ -19,7 +19,7 @@ private:
     void setJsonValue(
             rapidjson::Value& jsonValue,
             rapidjson::MemoryPoolAllocator<>& allocator,
-            const ClValue& clValue) const;
+            const ClParameter& clValue) const;
 };
 
 

@@ -5,35 +5,35 @@
 
 
 
-ClValue::ClValue(bool boolean):
+ClParameter::ClParameter(bool boolean):
     type(Type::BOOLEAN),
     number(boolean)
 {}
 
 
 
-ClValue::ClValue(uint32_t number):
+ClParameter::ClParameter(uint32_t number):
     type(Type::NUMBER),
     number(number)
 {}
 
 
 
-ClValue::ClValue(uint64_t number, Type type):
+ClParameter::ClParameter(uint64_t number, Type type):
     type(type),
     number(number)
 {}
 
 
 
-ClValue::ClValue(const std::string& text):
+ClParameter::ClParameter(const std::string& text):
     type(Type::TEXT),
     text(text)
 {}
 
 
 
-ClValue::ClValue(const std::vector<size_t> sizeArray):
+ClParameter::ClParameter(const std::vector<size_t> sizeArray):
     type(Type::SIZE_ARRAY),
     sizeArray(sizeArray)
 {}
@@ -52,7 +52,7 @@ const std::vector<std::string> FP_CONFIG_FIELD_NAMES = {
 };
 
 const std::vector<std::string> DEVICE_EXEC_CAPABILITIES_FIELD_NAMES = {
-    "CL_EXEC_KERNEL"
+    "CL_EXEC_KERNEL",
     "CL_EXEC_NATIVE_KERNEL"
 };
 
@@ -81,7 +81,7 @@ const std::vector<std::string> DEVICE_TYPE_FIELD_NAMES = {
     "CL_DEVICE_TYPE_CUSTOM"
 };
 
-std::string ClValue::toString() const
+std::string ClParameter::toString() const
 {
     switch (type) {
     case Type::BOOLEAN:
@@ -112,7 +112,7 @@ std::string ClValue::toString() const
 
 
 
-std::string ClValue::formatNumber(uint64_t number)
+std::string ClParameter::formatNumber(uint64_t number)
 {
     std::ostringstream oss;
     oss << number;
@@ -121,7 +121,7 @@ std::string ClValue::formatNumber(uint64_t number)
 
 
 
-std::string ClValue::formatSizeArray(const std::vector<size_t> array)
+std::string ClParameter::formatSizeArray(const std::vector<size_t> array)
 {
     if (array.empty()) {
         return "";
@@ -138,7 +138,7 @@ std::string ClValue::formatSizeArray(const std::vector<size_t> array)
 
 
 
-std::string ClValue::formatBitField(
+std::string ClParameter::formatBitField(
         uint64_t number,
         const std::vector<std::string>& fieldNames)
 {

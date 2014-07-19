@@ -17,7 +17,7 @@ std::string JsonSerializer::serialize(const ClInfo& info) const
     for (const ClPlatformInfo& platformInfo: info.platforms) {
         rapidjson::Value platform;
         platform.SetObject();
-        for (const auto& field: platformInfo.fields) {
+        for (const auto& field: platformInfo.parameters) {
             rapidjson::Value jsonValue;
             setJsonValue(jsonValue, allocator, field.second);
             platform.AddMember(field.first.c_str(), jsonValue, allocator);
@@ -28,7 +28,7 @@ std::string JsonSerializer::serialize(const ClInfo& info) const
         for (const ClDeviceInfo& deviceInfo: platformInfo.devices) {
             rapidjson::Value device;
             device.SetObject();
-            for (const auto& field: deviceInfo.fields) {
+            for (const auto& field: deviceInfo.parameters) {
                 rapidjson::Value jsonValue;
                 setJsonValue(jsonValue, allocator, field.second);
                 device.AddMember(field.first.c_str(), jsonValue, allocator);
@@ -50,16 +50,16 @@ std::string JsonSerializer::serialize(const ClInfo& info) const
 void JsonSerializer::setJsonValue(
         rapidjson::Value& jsonValue,
         rapidjson::MemoryPoolAllocator<>& allocator,
-        const ClValue& clValue) const
+        const ClParameter& clValue) const
 {
     switch (clValue.type) {
-    case ClValue::Type::BOOLEAN:
+    case ClParameter::Type::BOOLEAN:
         jsonValue.SetBool(clValue.number);
         break;
-    case ClValue::Type::NUMBER:
+    case ClParameter::Type::NUMBER:
         jsonValue.SetUint64(clValue.number);
         break;
-    case ClValue::Type::SIZE_ARRAY:
+    case ClParameter::Type::SIZE_ARRAY:
         jsonValue.SetArray();
         for (size_t size: clValue.sizeArray) {
             jsonValue.PushBack(size, allocator);
