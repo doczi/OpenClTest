@@ -29,6 +29,21 @@ private:
 
 
 
+template<>
+std::string OpenClWrapper::getDeviceInfo<std::string>(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
+
+template<>
+std::vector<size_t> OpenClWrapper::getDeviceInfo<std::vector<size_t> >(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
+
+template<>
+bool OpenClWrapper::getDeviceInfo<bool>(
+        cl_device_id deviceId,
+        cl_device_info parameterName) const;
+
 template<class T>
 T OpenClWrapper::getDeviceInfo(
         cl_device_id deviceId,

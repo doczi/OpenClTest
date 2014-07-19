@@ -101,18 +101,18 @@
 class OpenClBinder
 {
 private:
-    std::unique_ptr<void, int(*)(void*)> libraryHandle;
+    class Loader;
+    std::unique_ptr<Loader> loader;
+
+    OpenClBinder(const OpenClBinder&) = delete;
+    OpenClBinder& operator=(const OpenClBinder&) = delete;
 public:
     OpenClBinder(const std::string& openClPath);
+    ~OpenClBinder();
 
     #define OCLB_DECLARE_POINTER(function) decltype(&::function) const function;
     OCLB_PROCESS_OPEN_CL_FUNCTIONS(OCLB_DECLARE_POINTER)
     #undef OCLB_DECLARE_POINTER
-private:
-    void* openLibrary(const std::string& path);
-    template<class T> T bindFunction(const std::string& name);
-    OpenClBinder(const OpenClBinder&) = delete;
-    OpenClBinder& operator=(const OpenClBinder&) = delete;
 };
 
 

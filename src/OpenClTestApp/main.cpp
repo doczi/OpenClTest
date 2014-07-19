@@ -93,21 +93,22 @@ void compileKernel()
         throw OpenClException("Failed to create a device group!", err);
     }
 
-    std::unique_ptr<_cl_context, cl_int(*)(cl_context)> context(
+    std::unique_ptr<_cl_context, decltype(binder->clReleaseContext)> context(
             binder->clCreateContext(0, 1, &device_id, nullptr, nullptr, &err),
             binder->clReleaseContext);
     if (!context) {
         throw OpenClException("Failed to create a compute context!", err);
     }
 
-    std::unique_ptr<_cl_command_queue, cl_int(*)(cl_command_queue)> commands(
+    std::unique_ptr<_cl_command_queue, decltype(binder->clReleaseCommandQueue)>
+            commands(
             binder->clCreateCommandQueue(context.get(), device_id, 0, &err),
             binder->clReleaseCommandQueue);
     if (!commands) {
         throw OpenClException("Failed to create a command commands!", err);
     }
 
-    std::unique_ptr<_cl_program, cl_int(*)(cl_program)> program(
+    std::unique_ptr<_cl_program, decltype(binder->clReleaseProgram)> program(
             binder->clCreateProgramWithSource(context.get(), 1,
                     (const char**)&KernelSource, nullptr, &err),
             binder->clReleaseProgram);
