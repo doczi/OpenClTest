@@ -22,8 +22,6 @@ public:
     template<class T> T getDeviceInfo(
             cl_device_id deviceId,
             cl_device_info parameterName) const;
-    cl_context createContext(const std::vector<cl_device_id>& deviceIds) const;
-    void releaseContext(cl_context context) const;
 private:
     OpenClBinder* binder;
 };

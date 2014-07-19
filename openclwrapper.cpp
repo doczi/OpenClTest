@@ -128,24 +128,3 @@ bool OpenClWrapper::getDeviceInfo<bool>(
     }
     return result;
 }
-
-
-
-cl_context OpenClWrapper::createContext(
-        const std::vector<cl_device_id>& deviceIds) const
-{
-    cl_int error;
-    cl_context result = binder->clCreateContext(nullptr, deviceIds.size(),
-            deviceIds.data(), nullptr, nullptr, &error);
-    if (error != CL_SUCCESS) {
-        throw OpenClException("Cannot create context", error);
-    }
-    return result;
-}
-
-
-
-void OpenClWrapper::releaseContext(cl_context context) const
-{
-    binder->clReleaseContext(context);
-}
