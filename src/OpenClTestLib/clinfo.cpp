@@ -153,5 +153,8 @@ std::string ClParameter::formatBitField(
             isFirst = false;
         }
     }
+    if (isFirst) {
+        oss << "none";
+    }
     return oss.str();
 }

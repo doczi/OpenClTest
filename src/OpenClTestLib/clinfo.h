@@ -8,6 +8,10 @@
 
 
 
+/**
+ * A variant-like class that contains data returned by cl*GetInfo functions.
+ * Also has a method for converting said data to string format.
+ */
 class ClParameter
 {
 public:

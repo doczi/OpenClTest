@@ -56,7 +56,8 @@ public:
         if (pointer == nullptr) {
             throw OpenClException(dlerror());
         }
-        return reinterpret_cast<T>(pointer);
+        // -pedantic complains about direct void* to function pointer cast.
+        return reinterpret_cast<T>(reinterpret_cast<size_t>(pointer));
     }
 private:
     void* libraryHandle;

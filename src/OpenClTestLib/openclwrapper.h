@@ -9,6 +9,10 @@
 
 
 
+/**
+ * Wraps some OpenCL functionality for ease of use with standard containers and
+ * exceptions.
+ */
 class OpenClWrapper
 {
 public:

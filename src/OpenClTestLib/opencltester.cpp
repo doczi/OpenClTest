@@ -1,4 +1,4 @@
-#include "clinfogatherer.h"
+#include "opencltester.h"
 
 #include "openclwrapper.h"
 
@@ -6,14 +6,14 @@
 
 
 
-ClInfoGatherer::ClInfoGatherer(OpenCl_1_0_Binder& clBinder):
+OpenClTester::OpenClTester(OpenCl_1_0_Binder& clBinder):
     binder(clBinder),
     wrapper(clBinder)
 {}
 
 
 
-ClInfo ClInfoGatherer::gatherInfo()
+ClInfo OpenClTester::gatherInfo()
 {
     ClInfo result;
     std::vector<cl_platform_id> platformIds = wrapper.getPlatformIds();
@@ -25,7 +25,7 @@ ClInfo ClInfoGatherer::gatherInfo()
 
 
 
-ClPlatformInfo ClInfoGatherer::gatherPlatformInfo(cl_platform_id platformId)
+ClPlatformInfo OpenClTester::gatherPlatformInfo(cl_platform_id platformId)
 {
     ClPlatformInfo result;
     result.parameters.emplace("CL_PLATFORM_PROFILE",
@@ -56,7 +56,7 @@ ClPlatformInfo ClInfoGatherer::gatherPlatformInfo(cl_platform_id platformId)
         #parameterName, ClParameter(wrapper.getDeviceInfo<type>( \
         deviceId, parameterName), valueType))
 
-ClDeviceInfo ClInfoGatherer::gatherDeviceInfo(cl_device_id deviceId)
+ClDeviceInfo OpenClTester::gatherDeviceInfo(cl_device_id deviceId)
 {
     ClDeviceInfo result;
     result.parameters.insert(DEVICE_PARAMETER(cl_uint, CL_DEVICE_ADDRESS_BITS));
@@ -124,24 +124,8 @@ ClDeviceInfo ClInfoGatherer::gatherDeviceInfo(cl_device_id deviceId)
 
 
 
-std::string ClInfoGatherer::testCompilation()
+std::string OpenClTester::testCompilation(const std::string& kernelSource)
 {
-    /*
-     * I copied this kernel from here:
-     * https://developer.apple.com/library/mac/samplecode/OpenCL_Hello_World_Example/Introduction/Intro.html
-     */
-    const char *KERNEL_SOURCE = "\n"
-    "__kernel void square(                   \n"
-    "   __global float* input,               \n"
-    "   __global float* output,              \n"
-    "   const unsigned int count)            \n"
-    "{                                       \n"
-    "   int i = get_global_id(0);            \n"
-    "   if(i < count)                        \n"
-    "       output[i] = input[i] * input[i]; \n"
-    "}                                       \n"
-    "\n";
-
     /*
      * The C++ API is not usable due to the dynamic loading requirement, and
      * wrapping the whole C API would be a tedious job, so resort to using the
@@ -168,9 +152,10 @@ std::string ClInfoGatherer::testCompilation()
         throw OpenClException("Failed to create a command commands!", err);
     }
 
+    const char* kernelSourcePointer = &kernelSource[0];
     std::unique_ptr<_cl_program, decltype(binder.clReleaseProgram)> program(
             binder.clCreateProgramWithSource(context.get(), 1,
-                    &KERNEL_SOURCE, nullptr, &err),
+                    &kernelSourcePointer, nullptr, &err),
             binder.clReleaseProgram);
     if (!program) {
         throw OpenClException("Failed to create compute program!", err);
@@ -201,7 +186,7 @@ std::string ClInfoGatherer::testCompilation()
 
 
 template<class T>
-std::pair<std::string, std::string> ClInfoGatherer::getDeviceParameter(
+std::pair<std::string, std::string> OpenClTester::getDeviceParameter(
         cl_device_id deviceId,
         const std::string fieldName,
         cl_device_info fieldId) const

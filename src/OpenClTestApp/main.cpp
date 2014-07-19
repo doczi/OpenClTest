@@ -1,6 +1,6 @@
-#include "clinfogatherer.h"
 #include "jsonserializer.h"
 #include "openclbinder.h"
+#include "opencltester.h"
 #include "xmlserializer.h"
 
 #include <cstdlib>
@@ -8,6 +8,24 @@
 #include <map>
 #include <memory>
 #include <stdexcept>
+
+
+
+/*
+ * I copied this kernel from here:
+ * https://developer.apple.com/library/mac/samplecode/OpenCL_Hello_World_Example/Introduction/Intro.html
+ */
+const char *KERNEL_SOURCE = "\n"
+        "__kernel void square(                   \n"
+        "   __global float* input,               \n"
+        "   __global float* output,              \n"
+        "   const unsigned int count)            \n"
+        "{                                       \n"
+        "   int i = get_global_id(0);            \n"
+        "   if(i < count)                        \n"
+        "       output[i] = input[i] * input[i]; \n"
+        "}                                       \n"
+        "\n";
 
 
 
@@ -32,11 +50,12 @@ int main(int argc, char* argv[])
         }
         Serializer& serializer = *(foundSerializer->second);
         OpenCl_1_0_Binder openClBinder(libraryPath);
-        ClInfoGatherer infoGatherer(openClBinder);
+        OpenClTester infoGatherer(openClBinder);
         ClInfo info = infoGatherer.gatherInfo();
         std::cout << serializer.serialize(info) << std::endl;
         std::cout << "COMPILATION TEST:" << std::endl;
-        std::cout << infoGatherer.testCompilation() << std::endl;
+        std::cout << KERNEL_SOURCE << std::endl;
+        std::cout << infoGatherer.testCompilation(KERNEL_SOURCE) << std::endl;
         return EXIT_SUCCESS;
     } catch (const std::exception& e) {
         std::cout << e.what() << std::endl;
