@@ -1,12 +1,17 @@
-#ifndef JSONCLINFOSERIALIZER_H
-#define JSONCLINFOSERIALIZER_H
+#ifndef JSONSERIALIZER_H
+#define JSONSERIALIZER_H
 
-#include "clinfoserializer.h"
+#include "serializer.h"
+
 #include <rapidjson/document.h>
 
 
 
-class JsonClInfoSerializer: public ClInfoSerializer
+class ClValue;
+
+
+
+class JsonSerializer: public Serializer
 {
 public:
     std::string serialize(const ClInfo& info) const override;
@@ -19,4 +24,4 @@ private:
 
 
 
-#endif // JSONCLINFOSERIALIZER_H
+#endif // JSONSERIALIZER_H

@@ -8,8 +8,9 @@
 
 
 
-struct ClValue
+class ClValue
 {
+public:
     enum class Type {
         BOOLEAN,
         NUMBER,
@@ -43,19 +44,28 @@ private:
             const std::vector<std::string>& fieldNames);
 };
 
-struct ClDeviceInfo
+
+
+class ClDeviceInfo
 {
+public:
     std::map<std::string, ClValue> fields;
 };
 
-struct ClPlatformInfo
+
+
+class ClPlatformInfo
 {
+public:
     std::map<std::string, ClValue> fields;
     std::vector<ClDeviceInfo> devices;
 };
 
-struct ClInfo
+
+
+class ClInfo
 {
+public:
     std::vector<ClPlatformInfo> platforms;
 };
 

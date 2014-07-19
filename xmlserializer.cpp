@@ -1,10 +1,12 @@
-#include "xmlclinfoserializer.h"
+#include "xmlserializer.h"
+
+#include "clinfo.h"
 
 #include <rapidxml/rapidxml_print.hpp>
 
 
 
-std::string XmlClInfoSerializer::serialize(const ClInfo& info) const
+std::string XmlSerializer::serialize(const ClInfo& info) const
 {
     rapidxml::xml_document<> document;
     for (const ClPlatformInfo& platformInfo: info.platforms) {

@@ -1,4 +1,6 @@
-#include "jsonclinfoserializer.h"
+#include "jsonserializer.h"
+
+#include "clinfo.h"
 
 #include <rapidjson/document.h>
 #include <rapidjson/stringbuffer.h>
@@ -6,7 +8,7 @@
 
 
 
-std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
+std::string JsonSerializer::serialize(const ClInfo& info) const
 {
     rapidjson::Document document;
     document.SetArray();
@@ -45,7 +47,7 @@ std::string JsonClInfoSerializer::serialize(const ClInfo& info) const
 
 
 
-void JsonClInfoSerializer::setJsonValue(
+void JsonSerializer::setJsonValue(
         rapidjson::Value& jsonValue,
         rapidjson::MemoryPoolAllocator<>& allocator,
         const ClValue& clValue) const

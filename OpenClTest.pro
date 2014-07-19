@@ -6,21 +6,21 @@ CONFIG -= app_bundle qt
 SOURCES += \
     main.cpp \
     clinfogatherer.cpp \
-    jsonclinfoserializer.cpp \
     openclwrapper.cpp \
     clinfo.cpp \
-    xmlclinfoserializer.cpp \
-    openclbinder.cpp
+    openclbinder.cpp \
+    xmlserializer.cpp \
+    jsonserializer.cpp
 
 HEADERS += \
     clinfogatherer.h \
     clinfo.h \
-    clinfoserializer.h \
-    jsonclinfoserializer.h \
     openclwrapper.h \
-    xmlclinfoserializer.h \
     openclbinder.h \
-    openclexception.h
+    openclexception.h \
+    xmlserializer.h \
+    jsonserializer.h \
+    serializer.h
 
 INCLUDEPATH += \
     include \

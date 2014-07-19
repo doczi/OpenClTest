@@ -2,7 +2,9 @@
 #define OPENCLBINDER_H
 
 #include "openclexception.h"
+
 #include <CL/opencl.h>
+
 #include <memory>
 #include <string>
 

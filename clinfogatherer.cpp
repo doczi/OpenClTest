@@ -1,6 +1,7 @@
 #include "clinfogatherer.h"
 
 #include "openclwrapper.h"
+
 #include <sstream>
 
 

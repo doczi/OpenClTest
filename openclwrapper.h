@@ -3,6 +3,7 @@
 
 #include "openclbinder.h"
 #include "openclexception.h"
+
 #include <string>
 #include <vector>
 
